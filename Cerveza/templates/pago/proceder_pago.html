@@ -1,0 +1,312 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pago - Cervecería Yokai</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Fuentes japonesas -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
+    <!-- Tu CSS personalizado -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
+</head>
+<body class="fondo-pagina">
+    <!-- Navbar (igual que en tu página principal) -->
+    <nav class="navbar navbar-expand-lg navbar-yokai">
+        <div class="container-fluid">
+            <!-- Logo + Menú en línea (solo desktop) -->
+            <div class="d-flex align-items-center desktop-logo-menu">
+                <!-- Logo más grande -->
+                <a class="navbar-brand" href="#">
+                    <img src="{% static 'images/Logo.png' %}" alt="Logo Yokai" class="logo-desktop">
+                </a>
+                
+                <!-- Menú en línea (solo desktop) -->
+                <ul class="navbar-nav desktop-menu">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'seguimiento_pedido' %}">Seguimiento</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'historia' %}">Historia de los Yokai</a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Controles derechos (búsqueda + carrito + toggle) -->
+            <div class="d-flex align-items-center right-controls">
+                <!-- Barra de búsqueda (desktop) -->
+                <form class="d-flex search-form desktop-search" role="search">
+                    <div class="input-group">
+                        <input class="form-control" type="search" placeholder="Buscar..." aria-label="Search">
+                        <button class="btn btn-yokai" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Carrito (siempre visible) -->
+                <div class="nav-item cart-icon d-none d-lg-block">
+                    <a href="#" class="nav-link position-relative">
+                        <i class="bi bi-cart3"></i>
+                        <span class="cart-counter position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                    </a>
+                </div>
+                
+                <!-- Botón toggle para móvil -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarYokai">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Menú móvil expandido y controles -->
+    <div class="d-lg-none mobile-controls collapse" id="navbarYokai">
+        <div class="container-fluid mobile-menu-content">
+            <!-- Barra de búsqueda móvil -->
+            <form class="d-flex search-form mobile-search mb-3" role="search">
+                <div class="input-group">
+                    <input class="form-control" type="search" placeholder="Buscar..." aria-label="Search">
+                    <button class="btn btn-yokai" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Menú móvil -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Inicio</a>
+                </li>
+                <li class="nav-item">
+                        <a class="nav-link" href="{% url 'seguimiento_pedido' %}">Seguimiento</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'historia' %}">Historia de los Yokai</a>
+                    </li>
+            </ul>
+            
+            <!-- Carrito móvil con estilo dorado -->
+            <div class="nav-item cart-icon-mobile position-relative">
+                <a href="#" class="nav-link">
+                    <i class="bi bi-cart3"></i>
+                    <span class="cart-counter position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Menú móvil expandido y controles -->
+    <div class="d-lg-none mobile-controls collapse" id="navbarYokai">
+        <div class="container-fluid mobile-menu-content">
+            <!-- Barra de búsqueda móvil -->
+            <form class="d-flex search-form mobile-search mb-3" role="search">
+                <div class="input-group">
+                    <input class="form-control" type="search" placeholder="Buscar..." aria-label="Search">
+                    <button class="btn btn-yokai" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Menú móvil -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Inicio</a>
+                </li>
+                <li class="nav-item">
+                        <a class="nav-link" href="{% url 'seguimiento_pedido' %}">Seguimiento</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'historia' %}">Historia de los Yokai</a>
+                    </li>
+            </ul>
+            
+            <!-- Carrito móvil con estilo dorado -->
+            <div class="nav-item cart-icon-mobile position-relative">
+                <a href="#" class="nav-link">
+                    <i class="bi bi-cart3"></i>
+                    <span class="cart-counter position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <main class="container my-5">
+    <div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Mostrar mensajes -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-yokai-red text-white">
+                    <h3 class="mb-0"><i class="bi bi-credit-card"></i> Información de Pago</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" id="payment-form">
+                        {% csrf_token %}
+                        <input type="hidden" id="fecha_cliente" name="fecha_cliente">
+                        <h5 class="mb-3">Información Personal</h5>
+                        <div class="mb-3">
+                            <label for="nombre_cliente" class="form-label">Nombre Completo*</label>
+                            <input type="text" class="form-control" id="nombre_cliente" name="nombre_cliente" 
+                                   value="{{ request.POST.nombre_cliente|default:'' }}" required>
+                        </div>
+                        
+                        <h5 class="mb-3 mt-4">Información de Envío</h5>
+                        <div class="mb-3">
+                            <label for="direccion_envio" class="form-label">Dirección de Envío*</label>
+                            <textarea class="form-control" id="direccion_envio" name="direccion_envio" 
+                                      rows="3" required>{{ request.POST.direccion_envio|default:'' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="telefono_contacto" class="form-label">Teléfono de Contacto*</label>
+                            <div class="input-group">
+                                <span class="input-group-text">+56 9</span>
+                                <input type="tel" class="form-control" id="telefono_contacto" 
+                                       name="telefono_contacto" pattern="[0-9]{8}" 
+                                       title="8 dígitos después del +56 9" required
+                                       value="{{ request.POST.telefono_contacto|default:'' }}">
+                            </div>
+                            <small class="text-muted">Formato: +56 9XXXXXXXX</small>
+                        </div>
+                        
+                        <h5 class="mb-3">Método de Pago*</h5>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="metodo_pago" 
+                                   id="transferencia" value="TRANSFERENCIA" checked>
+                            <label class="form-check-label" for="transferencia">Transferencia Bancaria</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="metodo_pago" 
+                                   id="webpay" value="WEBPAY">
+                            <label class="form-check-label" for="webpay">WebPay</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="metodo_pago" 
+                                   id="efectivo" value="EFECTIVO">
+                            <label class="form-check-label" for="efectivo">Efectivo al Retirar</label>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-yokai btn-lg" id="submit-btn">
+                                <i class="bi bi-check-circle"></i> Confirmar Pedido
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+    <div class="card shadow-sm sticky-top" style="top: 20px;">
+        <div class="card-header bg-yokai-red text-white">
+            <h3 class="mb-0">Resumen del Pedido</h3>
+        </div>
+        <div class="card-body">
+            <div class="d-flex justify-content-between mb-2">
+                <span>Subtotal:</span>
+                <span>${{ subtotal|floatformat:0 }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+                <span>Envío:</span>
+                <span>{% if envio == 0 %}Gratis{% else %}${{ envio|floatformat:0 }}{% endif %}</span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between fw-bold fs-5">
+                <span>Total:</span>
+                <span>${{ total|floatformat:0 }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+</div>
+                </div>
+            </div>
+        </div>
+        
+        </form>
+        
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Función para formatear la fecha local del cliente
+    function getLocalDateTime() {
+        const now = new Date();
+        
+        // Obtener componentes de la fecha local
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        
+        // Formato: YYYY-MM-DD HH:MM:SS (hora local)
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+    
+    // Establecer el valor del campo oculto con la hora local
+    document.getElementById('fecha_cliente').value = getLocalDateTime();
+    const form = document.getElementById('payment-form');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    form.addEventListener('submit', function(e) {
+        // Validación del teléfono
+        const telefono = document.getElementById('telefono_contacto').value;
+        if (!/^\d{8}$/.test(telefono)) {
+            alert('El teléfono debe tener exactamente 8 dígitos después del +56 9');
+            e.preventDefault();
+            return;
+        }
+        
+        // Deshabilitar botón y mostrar spinner
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Procesando...';
+    });
+});
+console.log("Hora enviada al servidor:", document.getElementById('fecha_cliente').value);
+</script>
+</body>
+<footer class="footer-yokai bg-dark text-white py-4">
+    <div class="container-fluid">  <!-- Cambiado a container-fluid -->
+        <div class="row">
+            <!-- Columna izquierda - Logo y descripción -->
+            <div class="col">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="{% static 'images/Logo.png' %}" alt="Logo Yokai" style="height: 50px;" class="me-2">
+                    <h4 class="mb-0 text-yokai-gold">Cerveza Yokai</h4>
+                </div>
+                <p class="mb-0">Inspirados en la rica mitología japonesa para crear cervezas artesanales únicas.</p>
+            </div>
+            
+            <!-- Columna central - Contacto -->
+            <div class="col">
+                <h5 class="text-yokai-gold mb-3">Contacto</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="bi bi-geo-alt-fill text-yokai-gold me-2"></i> San Fernando, VI Region</li>
+                    <li class="mb-2"><i class="bi bi-telephone-fill text-yokai-gold me-2"></i> +56 9 9938 3345</li>
+                    <li class="mb-2"><i class="bi bi-envelope-fill text-yokai-gold me-2"></i> yokai.cerveza@gmail.com</li>
+                </ul>
+            </div>
+            
+            <!-- Columna derecha - Redes sociales -->
+        </div>
+        <hr class="my-4" style="border-color: rgba(212, 175, 55, 0.3);">
+        <div class="row">
+            <div class="col-12 text-center">
+                <p class="mb-0 small">&copy; 2025 Cervecería Yokai. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+</html>

@@ -1,0 +1,255 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Seguimiento - Cervecería Yokai</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Fuentes japonesas -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
+    <!-- Tu CSS personalizado -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="fondo-pagina">
+    <!-- Navbar (igual que en tu página principal) -->
+    <nav class="navbar navbar-expand-lg navbar-yokai">
+        <div class="container-fluid">
+            <!-- Logo + Menú en línea (solo desktop) -->
+            <div class="d-flex align-items-center desktop-logo-menu">
+                <!-- Logo más grande -->
+                <a class="navbar-brand" href="#">
+                    <img src="{% static 'images/Logo.png' %}" alt="Logo Yokai" class="logo-desktop">
+                </a>
+                
+                <!-- Menú en línea (solo desktop) -->
+                <ul class="navbar-nav desktop-menu">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'seguimiento_pedido' %}">Seguimiento</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'historia' %}">Historia de los Yokai</a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Controles derechos (búsqueda + carrito + toggle) -->
+            <div class="d-flex align-items-center right-controls">
+                <!-- Barra de búsqueda (desktop) -->
+                <form class="d-flex search-form desktop-search" role="search">
+                    <div class="input-group">
+                        <input class="form-control" type="search" placeholder="Buscar..." aria-label="Search">
+                        <button class="btn btn-yokai" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Carrito (siempre visible) -->
+                <div class="nav-item cart-icon d-none d-lg-block">
+                    <a href="#" class="nav-link position-relative">
+                        <i class="bi bi-cart3"></i>
+                        <span class="cart-counter position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                    </a>
+                </div>
+                
+                <!-- Botón toggle para móvil -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarYokai">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Menú móvil expandido y controles -->
+    <div class="d-lg-none mobile-controls collapse" id="navbarYokai">
+        <div class="container-fluid mobile-menu-content">
+            <!-- Barra de búsqueda móvil -->
+            <form class="d-flex search-form mobile-search mb-3" role="search">
+                <div class="input-group">
+                    <input class="form-control" type="search" placeholder="Buscar..." aria-label="Search">
+                    <button class="btn btn-yokai" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Menú móvil -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'seguimiento_pedido' %}">Seguimiento</a>
+                </li>
+                <li class="nav-item">
+                        <a class="nav-link" href="{% url 'seguimiento_pedido' %}">Seguimiento</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'historia' %}">Historia de los Yokai</a>
+                    </li>
+            </ul>
+            
+            <!-- Carrito móvil con estilo dorado -->
+            <div class="nav-item cart-icon-mobile position-relative">
+                <a href="#" class="nav-link">
+                    <i class="bi bi-cart3"></i>
+                    <span class="cart-counter position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                </a>
+            </div>
+        </div>
+    </div>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-yokai-red text-white">
+                    <h3 class="mb-0"><i class="bi bi-truck"></i> Seguimiento de Pedido</h3>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="mb-4">
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="codigo" 
+                                   placeholder="Ingresa tu código de seguimiento" 
+                                   value="{{ codigo }}" required>
+                            <button class="btn btn-yokai" type="submit">
+                                <i class="bi bi-search"></i> Buscar
+                            </button>
+                        </div>
+                    </form>
+
+                    {% if pedido %}
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between mb-2">
+                            <h5>Pedido #{{ pedido.id }}</h5>
+                            <span class="badge bg-{% if pedido.estado == 'ENTREGADO' %}success{% elif pedido.estado == 'CANCELADO' %}danger{% else %}warning{% endif %}">
+                                {% if pedido.estado == 'PENDIENTE' %}Pedido recibido
+                                {% elif pedido.estado == 'PROCESANDO' %}En preparación
+                                {% elif pedido.estado == 'ENVIADO' %}En camino
+                                {% elif pedido.estado == 'ENTREGADO' %}Entregado
+                                {% elif pedido.estado == 'CANCELADO' %}Cancelado
+                                {% else %}{{ pedido.estado }}{% endif %}
+                            </span>
+                        </div>
+                        <p class="text-muted mb-1">
+                            <strong>Código:</strong> {{ pedido.codigo_seguimiento }}
+                        </p>
+                        <p class="text-muted mb-1">
+                            <strong>Fecha:</strong> {{ pedido.fecha_pedido|date:"d/m/Y H:i" }}
+                        </p>
+                        <p class="text-muted">
+                            <strong>Total:</strong> ${{ pedido.total|floatformat:0 }}
+                        </p>
+                    </div>
+
+                    <div class="progress mb-4" style="height: 10px;">
+                        <div class="progress-bar bg-yokai-red" role="progressbar" 
+                             style="width: {{ progreso }}%;" 
+                             aria-valuenow="{{ progreso }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100"></div>
+                    </div>
+
+                    <div class="timeline-steps mb-5">
+                        <div class="timeline-step {% if pedido.estado != 'PENDIENTE' %}completed{% endif %}">
+                            <div class="timeline-icon"><i class="bi bi-cart-check"></i></div>
+                            <div class="timeline-content">
+                                <h6>Pedido Confirmado</h6>
+                                <small>{{ pedido.fecha_pedido|date:"d/m/Y H:i" }}</small>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-step {% if pedido.estado == 'PROCESANDO' or pedido.estado == 'ENVIADO' or pedido.estado == 'ENTREGADO' %}completed{% endif %}">
+                            <div class="timeline-icon"><i class="bi bi-box-seam"></i></div>
+                            <div class="timeline-content">
+                                <h6>En Preparación</h6>
+                                {% if pedido.estado != 'PENDIENTE' %}
+                                <small>Procesando tu pedido</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-step {% if pedido.estado == 'ENVIADO' or pedido.estado == 'ENTREGADO' %}completed{% endif %}">
+                            <div class="timeline-icon"><i class="bi bi-truck"></i></div>
+                            <div class="timeline-content">
+                                <h6>En Camino</h6>
+                                {% if pedido.estado == 'ENVIADO' %}
+                                <small>¡Tu pedido está en camino!</small>
+                                {% elif pedido.estado == 'ENTREGADO' %}
+                                <small>Enviado el {{ pedido.fecha_pedido|date:"d/m/Y" }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-step {% if pedido.estado == 'ENTREGADO' %}completed{% endif %}">
+                            <div class="timeline-icon"><i class="bi bi-house-check"></i></div>
+                            <div class="timeline-content">
+                                <h6>Entregado</h6>
+                                {% if pedido.estado == 'ENTREGADO' %}
+                                <small>¡Pedido recibido!</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Detalles del Pedido</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                <div class="col-md-6">
+                                    <p><strong>Dirección de envío:</strong><br>
+                                    {{ pedido.direccion_envio }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Teléfono de contacto:</strong><br>
+                                    {{ pedido.telefono_contacto }}</p>
+                                </div>
+                            </div>
+                            
+                            <h6 class="mb-3">Productos:</h6>
+                            <div class="list-group">
+                                {% for detalle in detalles %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="mb-1">{{ detalle.cerveza.nombre }}</h6>
+                                            <small class="text-muted">Cantidad: {{ detalle.cantidad }}</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <p class="mb-1">${{ detalle.precio_unitario|floatformat:0 }} c/u</p>
+                                            <small>Subtotal: ${{ detalle.subtotal|floatformat:0 }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% elif codigo %}
+                    <div class="alert alert-warning text-center">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        No se encontró ningún pedido con el código "{{ codigo }}"
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-upc-scan fs-1"></i>
+                        <h5 class="mt-3">Ingresa tu código de seguimiento</h5>
+                        <p class="mb-0">Puedes encontrarlo en el correo de confirmación de tu pedido</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

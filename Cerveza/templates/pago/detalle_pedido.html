@@ -1,0 +1,495 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Detalle de tu Pedido - Cervecería Yokai</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Fuentes japonesas -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
+    <!-- Tu CSS personalizado -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Limpiar localStorage si viene de un pedido completado
+    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
+        if (document.referrer.includes('/pedido/') || 
+            document.referrer.includes('/detalle_pedido/')) {
+            localStorage.removeItem('yokaiCart');
+        }
+    }
+    
+    // Actualizar contador del carrito
+    updateCartCounter();
+});
+
+function updateCartCounter() {
+    const cart = JSON.parse(localStorage.getItem('yokaiCart')) || [];
+    // Suma todas las cantidades de todos los productos
+    const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+    
+    document.querySelectorAll('.cart-counter').forEach(counter => {
+        counter.textContent = totalItems;
+        counter.style.display = totalItems > 0 ? 'block' : 'none';
+    });
+}
+
+    // 3. Función para añadir productos al carrito (CORREGIDA)
+    function addToCart(productId, quantity = 1) {
+    const cart = JSON.parse(localStorage.getItem('yokaiCart')) || [];
+    const productCard = document.querySelector(`[data-product-id="${productId}"]`).closest('.card');
+    
+    // Validación básica
+    if (!productCard) {
+        console.error('Producto no encontrado');
+        return;
+    }
+
+    // Obtener la cantidad exacta del input (sin duplicaciones)
+    const exactQuantity = parseInt(quantity) || 1;
+    
+    // Buscar si el producto ya está en el carrito
+    const existingProductIndex = cart.findIndex(item => item.id == productId);
+    
+    if (existingProductIndex >= 0) {
+        // Si existe, REEMPLAZAR la cantidad (no sumar)
+        cart[existingProductIndex].quantity = exactQuantity;
+    } else {
+        // Si no existe, agregar nuevo producto con la cantidad exacta
+        const priceElement = productCard.querySelector('.card-body h5.mb-0');
+        let price = 0;
+        
+        if (priceElement) {
+            const priceText = priceElement.textContent.trim();
+            const numericValue = priceText.replace(/[^\d]/g, '');
+            price = parseInt(numericValue) || 0;
+        }
+        
+        cart.push({
+            id: productId,
+            name: productCard.querySelector('.card-title')?.textContent.trim() || 'Cerveza Yokai',
+            image: productCard.querySelector('.card-img-top')?.src || '',
+            price: price,
+            quantity: exactQuantity // Usamos la cantidad exacta del input
+        });
+    }
+    
+    // Guardar en localStorage
+    localStorage.setItem('yokaiCart', JSON.stringify(cart));
+    
+    // Actualizar contador
+    updateCartCounter();
+    
+    // Mostrar feedback visual
+    showFeedbackMessage(`Añadido: ${exactQuantity} unidad(es)`);
+}
+
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.add-to-cart')) {
+        e.preventDefault();
+        const button = e.target.closest('.add-to-cart');
+        const productId = button.getAttribute('data-product-id');
+        const quantityInput = button.closest('.controls-container').querySelector('.quantity-input');
+        
+        // Obtener la cantidad EXACTA del input (sin modificaciones)
+        const exactQuantity = parseInt(quantityInput.value) || 1;
+        
+        // Animación del botón
+        button.classList.add('btn-animate');
+        const btnText = button.querySelector('.btn-text');
+        if (btnText) btnText.innerHTML = '<i class="bi bi-check"></i> Añadido';
+        
+        // Añadir al carrito con la cantidad EXACTA
+        addToCart(productId, exactQuantity);
+        animateToCart(button);
+        
+        // Restaurar botón después de 2 segundos
+        setTimeout(() => {
+            button.classList.remove('btn-animate');
+            if (btnText) btnText.innerHTML = '<i class="bi bi-cart-plus"></i> Añadir';
+        }, 2000);
+    }
+});
+
+
+
+// Actualizar contador al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartCounter();
+});
+
+    // 4. Función de animación al carrito (optimizada)
+    function animateToCart(button) {
+        const productCard = button.closest('.card');
+        const productImage = productCard.querySelector('.card-img-top');
+        const cartIcon = document.querySelector('.cart-icon .bi-cart3, .cart-icon-mobile .bi-cart3');
+        
+        if (!productImage || !cartIcon) return;
+
+        const flyingImg = productImage.cloneNode();
+        flyingImg.style.cssText = `
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #d4af37;
+            z-index: 1000;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        `;
+
+        const productRect = productCard.getBoundingClientRect();
+        const cartRect = cartIcon.getBoundingClientRect();
+        
+        flyingImg.style.left = `${productRect.left + productRect.width/2 - 30}px`;
+        flyingImg.style.top = `${productRect.top + window.scrollY}px`;
+        
+        document.body.appendChild(flyingImg);
+        
+        setTimeout(() => {
+            flyingImg.style.transform = `translate(${cartRect.left - productRect.left}px, 
+                                          ${cartRect.top - productRect.top}px) scale(0.2)`;
+            flyingImg.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                flyingImg.remove();
+                // Efecto de vibración en el icono del carrito
+                cartIcon.classList.add('shake');
+                setTimeout(() => cartIcon.classList.remove('shake'), 500);
+            }, 600);
+        }, 10);
+    }
+
+    // 5. Manejo de eventos (delegación mejorada)
+    function updateQuantity(productId, change) {
+    const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
+    if (!input) return;
+    
+    let value = parseInt(input.value) || 1;
+    const max = parseInt(input.getAttribute('max')) || Infinity;
+    const min = parseInt(input.getAttribute('min')) || 1;
+    
+    // Aplicar el cambio
+    value += change;
+    
+    // Asegurarse de que el valor esté dentro de los límites
+    value = Math.max(min, Math.min(max, value));
+    
+    input.value = value;
+    return value;
+}
+
+// Manejo de eventos para los botones de cantidad
+document.addEventListener('click', function(e) {
+    // Botón de incremento (+)
+    if (e.target.classList.contains('plus-btn')) {
+        const productId = e.target.getAttribute('data-product-id');
+        updateQuantity(productId, 1);
+    }
+    
+    // Botón de decremento (-)
+    if (e.target.classList.contains('minus-btn')) {
+        const productId = e.target.getAttribute('data-product-id');
+        updateQuantity(productId, -1);
+    }
+    
+    // Botón añadir al carrito
+    if (e.target.closest('.add-to-cart')) {
+        e.preventDefault();
+        const button = e.target.closest('.add-to-cart');
+        const productId = button.getAttribute('data-product-id');
+        const quantityInput = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
+        const quantity = parseInt(quantityInput?.value) || 1;
+        
+        // Animación del botón
+        button.classList.add('btn-animate');
+        const btnText = button.querySelector('.btn-text');
+        if (btnText) btnText.innerHTML = '<i class="bi bi-check"></i> Añadido';
+        
+        // Añadir al carrito y animar
+        addToCart(productId, quantity);
+        animateToCart(button);
+        
+        // Restaurar botón después de 2 segundos
+        setTimeout(() => {
+            button.classList.remove('btn-animate');
+            if (btnText) btnText.innerHTML = '<i class="bi bi-cart-plus"></i> Añadir';
+        }, 2000);
+    }
+});
+
+// Validación del input manual
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('quantity-input')) {
+        const input = e.target;
+        let value = parseInt(input.value) || 1;
+        const max = parseInt(input.getAttribute('max')) || Infinity;
+        const min = parseInt(input.getAttribute('min')) || 1;
+        
+        // Asegurarse de que el valor esté dentro de los límites
+        if (value > max) {
+            input.value = max;
+        } else if (value < min) {
+            input.value = min;
+        }
+    }
+});
+
+    // 6. Inicializar contador al cargar
+    updateCartCounter();
+
+    // 7. Debug (opcional)
+    window.debugCart = function() {
+        console.log('Carrito actual:', JSON.parse(localStorage.getItem('yokaiCart')));
+    };
+
+    // Al final de tu script, justo antes del cierre del DOMContentLoaded
+console.log('Debug: Verificando precios en las tarjetas...');
+document.querySelectorAll('.card').forEach((card, index) => {
+    const priceElement = card.querySelector('.card-price') || card.querySelector('.card-body h5');
+    if (priceElement) {
+        const priceText = priceElement.textContent.trim();
+        const numericValue = priceText.replace(/[^\d]/g, '');
+        console.log(`Producto ${index + 1}:`, {
+            text: priceText,
+            value: numericValue || '0 (no se pudo parsear)'
+        });
+    } else {
+        console.warn(`Producto ${index + 1}: No se encontró elemento de precio`);
+    }
+});
+window.addEventListener('load', function() {
+    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
+        if (document.referrer.includes('/pedido/') || 
+            document.referrer.includes('/detalle_pedido/')) {
+            localStorage.removeItem('yokaiCart');
+            updateCartCounter();
+            
+            // Opcional: Forzar sincronización con servidor
+            fetch('/carrito/clear/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+        }
+    }
+});
+</script>
+</head>
+<body class="fondo-pagina">
+    <!-- Navbar (igual que en tu página principal) -->
+    <nav class="navbar navbar-expand-lg navbar-yokai">
+        <div class="container-fluid">
+            <!-- Logo + Menú en línea (solo desktop) -->
+            <div class="d-flex align-items-center desktop-logo-menu">
+                <!-- Logo más grande -->
+                <a class="navbar-brand" href="#">
+                    <img src="{% static 'images/Logo.png' %}" alt="Logo Yokai" class="logo-desktop">
+                </a>
+                
+                <!-- Menú en línea (solo desktop) -->
+                <ul class="navbar-nav desktop-menu">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'seguimiento_pedido' %}">Seguimiento</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'historia' %}">Historia de los Yokai</a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Controles derechos (búsqueda + carrito + toggle) -->
+            <div class="d-flex align-items-center right-controls">
+                <!-- Barra de búsqueda (desktop) -->
+                <form class="d-flex search-form desktop-search" role="search">
+                    <div class="input-group">
+                        <input class="form-control" type="search" placeholder="Buscar..." aria-label="Search">
+                        <button class="btn btn-yokai" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Carrito (siempre visible) -->
+                <div class="nav-item cart-icon d-none d-lg-block">
+                    <a href="#" class="nav-link position-relative">
+                        <i class="bi bi-cart3"></i>
+                        <span class="cart-counter position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                    </a>
+                </div>
+                
+                <!-- Botón toggle para móvil -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarYokai">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Menú móvil expandido y controles -->
+    <div class="d-lg-none mobile-controls collapse" id="navbarYokai">
+        <div class="container-fluid mobile-menu-content">
+            <!-- Barra de búsqueda móvil -->
+            <form class="d-flex search-form mobile-search mb-3" role="search">
+                <div class="input-group">
+                    <input class="form-control" type="search" placeholder="Buscar..." aria-label="Search">
+                    <button class="btn btn-yokai" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Menú móvil -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Inicio</a>
+                </li>
+                <li class="nav-item">
+                        <a class="nav-link" href="{% url 'seguimiento_pedido' %}">Seguimiento</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'historia' %}">Historia de los Yokai</a>
+                    </li>
+            </ul>
+            
+            <!-- Carrito móvil con estilo dorado -->
+            <div class="nav-item cart-icon-mobile position-relative">
+                <a href="#" class="nav-link">
+                    <i class="bi bi-cart3"></i>
+                    <span class="cart-counter position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                </a>
+            </div>
+        </div>
+    </div>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-yokai-red text-white">
+                    <h3 class="mb-0"><i class="bi bi-check-circle"></i> Pedido Confirmado</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success" role="alert">
+                        <h4 class="alert-heading">¡Gracias por tu compra!</h4>
+                        <p>Tu pedido ha sido confirmado.</p>
+                        <hr>
+                        <p class="mb-0">Código de seguimiento: <strong>{{ pedido.codigo_seguimiento }}</strong></p>
+                    </div>
+                    
+                    <!-- Detalles del pedido -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Información del Pedido</h5>
+                            <p><strong>Número de Pedido:</strong> {{ pedido.id }}</p>
+                            <p><strong>Fecha y Hora:</strong> {{ pedido.fecha_pedido|date:"d/m/Y H:i" }}</p>
+                            <p><strong>Estado:</strong> <span class="badge bg-{% if pedido.estado == 'PENDIENTE' %}warning{% elif pedido.estado == 'PROCESANDO' %}info{% elif pedido.estado == 'ENVIADO' %}primary{% elif pedido.estado == 'ENTREGADO' %}success{% else %}danger{% endif %}">
+                                {{ pedido.get_estado_display }}
+                            </span></p>
+                            <p><strong>Total:</strong> ${{ pedido.total }}</p>
+                            <p><strong>Método de Pago:</strong> {{ pedido.get_metodo_pago_display }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Información de Envío</h5>
+                            <p><strong>Nombre:</strong> {{ pedido.nombre_cliente }}</p>
+                            <p><strong>Dirección:</strong> {{ pedido.direccion_envio }}</p>
+                            <p><strong>Teléfono:</strong> +56 9 {{ pedido.telefono_contacto }}</p>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <h5>Productos</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unitario</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>{{ item.cerveza.nombre }}</td>
+                                    <td>{{ item.cantidad }}</td>
+                                    <td>${{ item.precio_unitario }}</td>
+                                    <td>${{ item.subtotal }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="{% url 'index' %}" class="btn btn-yokai" onclick="clearCartAndRedirect()">
+                            <i class="bi bi-house"></i> Volver al Inicio
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+<footer class="footer-yokai bg-dark text-white py-4">
+    <div class="container-fluid">  <!-- Cambiado a container-fluid -->
+        <div class="row">
+            <!-- Columna izquierda - Logo y descripción -->
+            <div class="col">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="{% static 'images/Logo.png' %}" alt="Logo Yokai" style="height: 50px;" class="me-2">
+                    <h4 class="mb-0 text-yokai-gold">Cerveza Yokai</h4>
+                </div>
+                <p class="mb-0">Inspirados en la rica mitología japonesa para crear cervezas artesanales únicas.</p>
+            </div>
+            
+            <!-- Columna central - Contacto -->
+            <div class="col">
+                <h5 class="text-yokai-gold mb-3">Contacto</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="bi bi-geo-alt-fill text-yokai-gold me-2"></i> San Fernando, VI Region</li>
+                    <li class="mb-2"><i class="bi bi-telephone-fill text-yokai-gold me-2"></i> +56 9 9938 3345</li>
+                    <li class="mb-2"><i class="bi bi-envelope-fill text-yokai-gold me-2"></i> yokai.cerveza@gmail.com</li>
+                </ul>
+            </div>
+            
+            <!-- Columna derecha - Redes sociales -->
+        </div>
+        <hr class="my-4" style="border-color: rgba(212, 175, 55, 0.3);">
+        <div class="row">
+            <div class="col-12 text-center">
+                <p class="mb-0 small">&copy; 2025 Cervecería Yokai. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+</html>
+<script>
+function clearCartAndRedirect() {
+    // Limpiar localStorage
+    localStorage.removeItem('yokaiCart');
+    // Actualizar contador
+    updateCartCounter();
+    // Opcional: Notificar al servidor
+    fetch('/carrito/clear/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    });
+}
+</script>

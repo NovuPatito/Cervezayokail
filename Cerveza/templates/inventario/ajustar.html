@@ -1,0 +1,146 @@
+{% load static %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if form.instance.id %}Editar{% else %}Agregar{% endif %} Cerveza | Cervecería Yokai</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+<body>
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">
+                <i class="bi bi-box-seam"></i> Ajustar Inventario: {{ cerveza.nombre }}
+            </h3>
+        </div>
+        
+        <div class="card-body">
+            <div class="alert alert-info">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <span>Stock actual: <strong class="h5">{{ cerveza.stock }}</strong> unidades</span>
+                </div>
+            </div>
+            
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="row g-3">
+                    <!-- Tipo de Movimiento -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-select" id="tipo" name="tipo" required>
+                                <option value="" disabled selected>Seleccione...</option>
+                                <option value="ENTRADA">Entrada (Añadir stock)</option>
+                                <option value="SALIDA">Salida (Reducir stock)</option>
+                                <option value="AJUSTE">Ajuste (Establecer nuevo valor)</option>
+                            </select>
+                            <label for="tipo"><i class="bi bi-arrow-left-right"></i> Tipo de Movimiento</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Cantidad -->
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="number" 
+                                   class="form-control" 
+                                   id="cantidad" 
+                                   name="cantidad" 
+                                   min="1" 
+                                   required
+                                   placeholder="0">
+                            <label for="cantidad"><i class="bi bi-123"></i> Cantidad</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Motivo -->
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <textarea class="form-control" 
+                                      id="motivo" 
+                                      name="motivo" 
+                                      style="height: 100px" 
+                                      required
+                                      placeholder="Describa el motivo del ajuste"></textarea>
+                            <label for="motivo"><i class="bi bi-card-text"></i> Motivo del Ajuste</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones -->
+                    <div class="col-12 d-flex justify-content-between mt-4">
+                        <a href="{% url 'inventario:lista' %}" class="btn btn-lg btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-lg btn-primary">
+                            <i class="bi bi-check-circle"></i> Guardar Ajuste
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<style>
+    .card {
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    .form-floating label {
+        padding-left: 2.5rem;
+    }
+    .form-floating i.bi {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+    .form-select, .form-control {
+        padding-left: 2.5rem;
+        border-radius: 8px;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+</style>
+
+<script>
+    // Validación del formulario
+    (function() {
+        'use strict'
+        
+        const forms = document.querySelectorAll('.needs-validation')
+        
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+    
+    // Cambiar placeholder de cantidad según tipo de movimiento
+    document.getElementById('tipo').addEventListener('change', function() {
+        const cantidadInput = document.getElementById('cantidad')
+        if (this.value === 'AJUSTE') {
+            cantidadInput.placeholder = "Nuevo valor de stock"
+        } else {
+            cantidadInput.placeholder = "Cantidad a " + (this.value === 'ENTRADA' ? 'añadir' : 'reducir')
+        }
+    })
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

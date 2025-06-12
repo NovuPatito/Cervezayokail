@@ -1,0 +1,260 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if form.instance.id %}Editar{% else %}Agregar{% endif %} Cerveza | Cervecería Yokai</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #8B4513; /* Color cerveza */
+            --secondary-color: #D2691E; /* Color acento */
+        }
+        
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .form-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        }
+        
+        .form-title {
+            font-family: 'RocknRoll One', sans-serif;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 3px solid var(--secondary-color);
+            text-align: center;
+            position: relative;
+        }
+        
+        .form-title i {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 12px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 0.6rem 2rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control, .form-select, .form-control-file {
+            border-radius: 10px;
+            padding: 0.85rem;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.25rem rgba(139, 69, 19, 0.25);
+        }
+        
+        .img-thumbnail {
+            border-radius: 12px;
+            max-height: 120px;
+            border: 2px solid #e0e0e0;
+            transition: transform 0.3s;
+        }
+        
+        .img-thumbnail:hover {
+            transform: scale(1.05);
+        }
+        
+        .form-section {
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
+            background: #fafafa;
+            border-radius: 12px;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .form-section-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .form-section-title i {
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="form-container">
+            <h1 class="form-title">
+                <i class="bi bi-{% if form.instance.id %}pencil-square{% else %}plus-circle{% endif %}"></i>
+                {% if form.instance.id %}Editar{% else %}Agregar{% endif %} Cerveza Yokai
+            </h1>
+            
+            <form method="post" enctype="multipart/form-data" class="row g-4">
+                {% csrf_token %}
+                
+                <!-- Sección 1: Información Básica -->
+                <div class="col-md-6">
+                    <div class="form-section">
+                        <h5 class="form-section-title"><i class="bi bi-info-circle"></i> Información Básica</h5>
+                        
+                        <div class="mb-3">
+                            <label for="id_nombre" class="form-label">Nombre</label>
+                            {{ form.nombre }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_estilo" class="form-label">Estilo</label>
+                            {{ form.estilo }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_alcohol" class="form-label">Alcohol (%)</label>
+                            {{ form.alcohol }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sección 2: Imagen y Precio -->
+                <div class="col-md-6">
+                    <div class="form-section">
+                        <h5 class="form-section-title"><i class="bi bi-image"></i> Imagen y Precio</h5>
+                        
+                        <div class="mb-3">
+                            <label for="id_imagen" class="form-label">Imagen</label>
+                            {% if form.instance.imagen %}
+                                <div class="mb-3 text-center">
+                                    <img src="{{ form.instance.imagen.url }}" class="img-thumbnail mb-2">
+                                    <div class="text-muted small">Archivo actual: {{ form.instance.imagen.name|cut:"cervezas/" }}</div>
+                                </div>
+                            {% endif %}
+                            <input type="file" class="form-control form-control-file" name="{{ form.imagen.name }}" id="{{ form.imagen.id_for_label }}">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_precio" class="form-label">Precio</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">$</span>
+                                {{ form.precio }}
+                            </div>
+                        </div>
+                        
+                        {# Campo stock oculto para mantener el valor actual #}
+                        {{ form.stock }}
+                    </div>
+                </div>
+                
+                <!-- Sección 3: Descripción y Yokai -->
+                <div class="col-12">
+                    <div class="form-section">
+                        <h5 class="form-section-title"><i class="bi bi-book"></i> Descripción y Yokai</h5>
+                        
+                        <div class="mb-3">
+                            <label for="id_descripcion" class="form-label">Descripción</label>
+                            {{ form.descripcion }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_yokai_asociado" class="form-label">Yokai Asociado</label>
+                            {{ form.yokai_asociado }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_historia_yokai" class="form-label">Historia del Yokai</label>
+                            {{ form.historia_yokai }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sección 4: Ingredientes y Destacado -->
+                <div class="col-md-6">
+                    <div class="form-section h-100">
+                        <h5 class="form-section-title"><i class="bi bi-list-check"></i> Ingredientes</h5>
+                        {{ form.ingredientes }}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-section h-100 d-flex flex-column justify-content-center">
+                        <div class="form-check form-switch d-flex align-items-center">
+                            {{ form.destacado }}
+                            <label class="form-check-label ms-3 h5" for="id_destacado">
+                                <i class="bi bi-star-fill text-warning"></i> Marcar como Destacado
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Botones -->
+                <div class="col-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'inventario:lista' %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-save"></i> Guardar Cerveza
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Añade clases de Bootstrap a los elementos del formulario generados por Django
+        document.querySelectorAll('input:not([type="checkbox"]), textarea').forEach(element => {
+            element.classList.add('form-control');
+        });
+        
+        document.querySelectorAll('select').forEach(element => {
+            element.classList.add('form-select');
+        });
+        
+        document.querySelectorAll('input[type="checkbox"]').forEach(element => {
+            element.classList.add('form-check-input');
+        });
+        
+        // Efecto hover para los botones
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(button => {
+            button.addEventListener('mouseenter', () => {
+                button.style.transform = 'translateY(-2px)';
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.transform = '';
+            });
+        });
+    </script>
+</body>
+</html>

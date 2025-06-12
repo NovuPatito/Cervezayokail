@@ -1,0 +1,918 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cervecería Yokai</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <!-- Fuentes japonesas -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap" rel="stylesheet">
+    <!-- Tu CSS personalizado -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<style>
+    /* Estilos para reseñas */
+    
+        /* Estilos mejorados para reseñas */
+    .review-card {
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #f9f9f9;
+        transition: all 0.3s;
+    }
+    
+    .review-card:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .review-user {
+        font-weight: bold;
+        color: var(--primary-color);
+    }
+    
+    .review-date {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    
+    /* Estrellas de rating */
+    .star-rating {
+        direction: rtl;
+        display: inline-block;
+    }
+    
+    .star-rating input[type=radio] {
+        display: none;
+    }
+    
+    .star-rating label {
+        color: #ddd;
+        font-size: 1.5rem;
+        padding: 0 3px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .star-rating input[type=radio]:checked ~ label {
+        color: #ffc107;
+        transform: scale(1.1);
+    }
+    
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: #ffc107;
+        transform: scale(1.1);
+    }
+    
+    /* Formulario de reseña */
+    #resenaForm {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .rating-stars {
+        color: #ffc107;
+        font-size: 1.2rem;
+    }
+    
+    .rating-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .rating-average {
+        font-weight: bold;
+        margin-left: 0.5rem;
+    }
+    
+    .rating-count {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-left: 0.5rem;
+    }
+    
+    .review-card {
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #f9f9f9;
+    }
+    
+    .review-user {
+        font-weight: bold;
+    }
+    
+    .review-date {
+        font-size: 0.8rem;
+        color: #6c757d;
+    }
+    
+    /* Modal de reseñas */
+    #reviewModal .modal-body {
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+    
+    /* Estrellas de rating interactivas */
+    .star-rating {
+        direction: rtl;
+        display: inline-block;
+    }
+    
+    .star-rating input[type=radio] {
+        display: none;
+    }
+    
+    .star-rating label {
+        color: #ddd;
+        font-size: 2rem;
+        padding: 0 3px;
+        cursor: pointer;
+    }
+    
+    .star-rating input[type=radio]:checked ~ label {
+        color: #ffc107;
+    }
+    
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: #ffc107;
+    }
+
+    .yokai-section,
+    .yokai-description,
+    .beer-association,
+    .timeline,
+    .timeline-item {
+        color: white !important;
+    }
+
+    /* Para los títulos */
+    .yokai-title {
+        color: #d4af37 !important; /* Mantenemos el dorado para los títulos */
+    }
+
+    /* Para los elementos de lista */
+    .beer-association ul,
+    .timeline-item ul {
+        color: white;
+    }
+
+    /* Para los enlaces */
+    .beer-association a,
+    .timeline-item a {
+        color: #d4af37;
+        text-decoration: none;
+    }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Limpiar localStorage si viene de un pedido completado
+    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
+        if (document.referrer.includes('/pedido/') || 
+            document.referrer.includes('/detalle_pedido/')) {
+            localStorage.removeItem('yokaiCart');
+        }
+    }
+    
+    // Actualizar contador del carrito
+    updateCartCounter();
+});
+
+function updateCartCounter() {
+    const cart = JSON.parse(localStorage.getItem('yokaiCart')) || [];
+    // Suma todas las cantidades de todos los productos
+    const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+    
+    document.querySelectorAll('.cart-counter').forEach(counter => {
+        counter.textContent = totalItems;
+        counter.style.display = totalItems > 0 ? 'block' : 'none';
+    });
+}
+
+    // 3. Función para añadir productos al carrito (CORREGIDA)
+    function addToCart(productId, quantity = 1) {
+    const cart = JSON.parse(localStorage.getItem('yokaiCart')) || [];
+    const productCard = document.querySelector(`[data-product-id="${productId}"]`).closest('.card');
+    
+    // Validación básica
+    if (!productCard) {
+        console.error('Producto no encontrado');
+        return;
+    }
+
+    // Obtener la cantidad exacta del input (sin duplicaciones)
+    const exactQuantity = parseInt(quantity) || 1;
+    
+    // Buscar si el producto ya está en el carrito
+    const existingProductIndex = cart.findIndex(item => item.id == productId);
+    
+    if (existingProductIndex >= 0) {
+        // Si existe, REEMPLAZAR la cantidad (no sumar)
+        cart[existingProductIndex].quantity = exactQuantity;
+    } else {
+        // Si no existe, agregar nuevo producto con la cantidad exacta
+        const priceElement = productCard.querySelector('.card-body h5.mb-0');
+        let price = 0;
+        
+        if (priceElement) {
+            const priceText = priceElement.textContent.trim();
+            const numericValue = priceText.replace(/[^\d]/g, '');
+            price = parseInt(numericValue) || 0;
+        }
+        
+        cart.push({
+            id: productId,
+            name: productCard.querySelector('.card-title')?.textContent.trim() || 'Cerveza Yokai',
+            image: productCard.querySelector('.card-img-top')?.src || '',
+            price: price,
+            quantity: exactQuantity // Usamos la cantidad exacta del input
+        });
+    }
+    
+    // Guardar en localStorage
+    localStorage.setItem('yokaiCart', JSON.stringify(cart));
+    
+    // Actualizar contador
+    updateCartCounter();
+    
+    // Mostrar feedback visual
+    showFeedbackMessage(`Añadido: ${exactQuantity} unidad(es)`);
+}
+
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.add-to-cart')) {
+        e.preventDefault();
+        const button = e.target.closest('.add-to-cart');
+        const productId = button.getAttribute('data-product-id');
+        const quantityInput = button.closest('.controls-container').querySelector('.quantity-input');
+        
+        // Obtener la cantidad EXACTA del input (sin modificaciones)
+        const exactQuantity = parseInt(quantityInput.value) || 1;
+        
+        // Animación del botón
+        button.classList.add('btn-animate');
+        const btnText = button.querySelector('.btn-text');
+        if (btnText) btnText.innerHTML = '<i class="bi bi-check"></i> Añadido';
+        
+        // Añadir al carrito con la cantidad EXACTA
+        addToCart(productId, exactQuantity);
+        animateToCart(button);
+        
+        // Restaurar botón después de 2 segundos
+        setTimeout(() => {
+            button.classList.remove('btn-animate');
+            if (btnText) btnText.innerHTML = '<i class="bi bi-cart-plus"></i> Añadir';
+        }, 2000);
+    }
+});
+
+
+
+// Actualizar contador al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    updateCartCounter();
+});
+
+    // 4. Función de animación al carrito (optimizada)
+    function animateToCart(button) {
+        const productCard = button.closest('.card');
+        const productImage = productCard.querySelector('.card-img-top');
+        const cartIcon = document.querySelector('.cart-icon .bi-cart3, .cart-icon-mobile .bi-cart3');
+        
+        if (!productImage || !cartIcon) return;
+
+        const flyingImg = productImage.cloneNode();
+        flyingImg.style.cssText = `
+            position: fixed;
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 2px solid #d4af37;
+            z-index: 1000;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        `;
+
+        const productRect = productCard.getBoundingClientRect();
+        const cartRect = cartIcon.getBoundingClientRect();
+        
+        flyingImg.style.left = `${productRect.left + productRect.width/2 - 30}px`;
+        flyingImg.style.top = `${productRect.top + window.scrollY}px`;
+        
+        document.body.appendChild(flyingImg);
+        
+        setTimeout(() => {
+            flyingImg.style.transform = `translate(${cartRect.left - productRect.left}px, 
+                                          ${cartRect.top - productRect.top}px) scale(0.2)`;
+            flyingImg.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                flyingImg.remove();
+                // Efecto de vibración en el icono del carrito
+                cartIcon.classList.add('shake');
+                setTimeout(() => cartIcon.classList.remove('shake'), 500);
+            }, 600);
+        }, 10);
+    }
+
+    // 5. Manejo de eventos (delegación mejorada)
+    function updateQuantity(productId, change) {
+    const input = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
+    if (!input) return;
+    
+    let value = parseInt(input.value) || 1;
+    const max = parseInt(input.getAttribute('max')) || Infinity;
+    const min = parseInt(input.getAttribute('min')) || 1;
+    
+    // Aplicar el cambio
+    value += change;
+    
+    // Asegurarse de que el valor esté dentro de los límites
+    value = Math.max(min, Math.min(max, value));
+    
+    input.value = value;
+    return value;
+}
+
+// Manejo de eventos para los botones de cantidad
+document.addEventListener('click', function(e) {
+    // Botón de incremento (+)
+    if (e.target.classList.contains('plus-btn')) {
+        const productId = e.target.getAttribute('data-product-id');
+        updateQuantity(productId, 1);
+    }
+    
+    // Botón de decremento (-)
+    if (e.target.classList.contains('minus-btn')) {
+        const productId = e.target.getAttribute('data-product-id');
+        updateQuantity(productId, -1);
+    }
+    
+    // Botón añadir al carrito
+    if (e.target.closest('.add-to-cart')) {
+        e.preventDefault();
+        const button = e.target.closest('.add-to-cart');
+        const productId = button.getAttribute('data-product-id');
+        const quantityInput = document.querySelector(`.quantity-input[data-product-id="${productId}"]`);
+        const quantity = parseInt(quantityInput?.value) || 1;
+        
+        // Animación del botón
+        button.classList.add('btn-animate');
+        const btnText = button.querySelector('.btn-text');
+        if (btnText) btnText.innerHTML = '<i class="bi bi-check"></i> Añadido';
+        
+        // Añadir al carrito y animar
+        addToCart(productId, quantity);
+        animateToCart(button);
+        
+        // Restaurar botón después de 2 segundos
+        setTimeout(() => {
+            button.classList.remove('btn-animate');
+            if (btnText) btnText.innerHTML = '<i class="bi bi-cart-plus"></i> Añadir';
+        }, 2000);
+    }
+});
+
+// Validación del input manual
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('quantity-input')) {
+        const input = e.target;
+        let value = parseInt(input.value) || 1;
+        const max = parseInt(input.getAttribute('max')) || Infinity;
+        const min = parseInt(input.getAttribute('min')) || 1;
+        
+        // Asegurarse de que el valor esté dentro de los límites
+        if (value > max) {
+            input.value = max;
+        } else if (value < min) {
+            input.value = min;
+        }
+    }
+});
+
+    // 6. Inicializar contador al cargar
+    updateCartCounter();
+
+    // 7. Debug (opcional)
+    window.debugCart = function() {
+        console.log('Carrito actual:', JSON.parse(localStorage.getItem('yokaiCart')));
+    };
+
+    // Al final de tu script, justo antes del cierre del DOMContentLoaded
+console.log('Debug: Verificando precios en las tarjetas...');
+document.querySelectorAll('.card').forEach((card, index) => {
+    const priceElement = card.querySelector('.card-price') || card.querySelector('.card-body h5');
+    if (priceElement) {
+        const priceText = priceElement.textContent.trim();
+        const numericValue = priceText.replace(/[^\d]/g, '');
+        console.log(`Producto ${index + 1}:`, {
+            text: priceText,
+            value: numericValue || '0 (no se pudo parsear)'
+        });
+    } else {
+        console.warn(`Producto ${index + 1}: No se encontró elemento de precio`);
+    }
+});
+window.addEventListener('load', function() {
+    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
+        if (document.referrer.includes('/pedido/') || 
+            document.referrer.includes('/detalle_pedido/')) {
+            localStorage.removeItem('yokaiCart');
+            updateCartCounter();
+            
+            // Opcional: Forzar sincronización con servidor
+            fetch('/carrito/clear/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+        }
+    }
+});
+</script>
+</head>
+<body class="fondo-pagina">
+    <!-- Navbar principal -->
+    <nav class="navbar navbar-expand-lg navbar-yokai">
+        <div class="container-fluid">
+            <!-- Logo + Menú en línea (solo desktop) -->
+            <div class="d-flex align-items-center desktop-logo-menu">
+                <!-- Logo más grande -->
+                <a class="navbar-brand" href="#">
+                    <img src="{% static 'images/Logo.png' %}" alt="Logo Yokai" class="logo-desktop">
+                </a>
+                
+                <!-- Menú en línea (solo desktop) -->
+                <ul class="navbar-nav desktop-menu">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#">Inicio</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'seguimiento_pedido' %}">Seguimiento</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'historia' %}">Historia de los Yokai</a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Controles derechos (búsqueda + carrito + toggle) -->
+            <div class="d-flex align-items-center right-controls">
+                <!-- Barra de búsqueda (desktop) -->
+                <form class="d-flex search-form desktop-search" role="search">
+                    <div class="input-group">
+                        <input class="form-control" type="search" placeholder="Buscar..." aria-label="Search">
+                        <button class="btn btn-yokai" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Carrito (siempre visible) -->
+                <div class="nav-item cart-icon d-none d-lg-block">
+                    <a href="{% url 'carrito' %}" class="nav-link position-relative">
+                        <i class="bi bi-cart3"></i>
+                        <span class="cart-counter position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                    </a>
+                </div>
+                
+                <!-- Botón toggle para móvil -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarYokai">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Menú móvil expandido y controles -->
+    <div class="d-lg-none mobile-controls collapse" id="navbarYokai">
+        <div class="container-fluid mobile-menu-content">
+            <!-- Barra de búsqueda móvil -->
+            <form class="d-flex search-form mobile-search mb-3" role="search">
+                <div class="input-group">
+                    <input class="form-control" type="search" placeholder="Buscar..." aria-label="Search">
+                    <button class="btn btn-yokai" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <!-- Menú móvil -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'seguimiento_pedido' %}">Seguimiento</a>
+                </li>
+                <li class="nav-item">
+                        <a class="nav-link" href="{% url 'historia' %}">Historia de los Yokai</a>
+                    </li>
+            </ul>
+            
+            <!-- Carrito móvil con estilo dorado -->
+            <div class="nav-item cart-icon-mobile position-relative">
+                <a href="{% url 'carrito' %}" class="nav-link"> -->
+                    <i class="bi bi-cart3"></i>
+                    <span class="cart-counter position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">0</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid px-0">
+        <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <img src="{% static 'images/1.jpeg' %}" class="d-block w-100" style="height: 50vh; min-height: 300px; object-fit: cover;" alt="...">
+                </div>
+                <div class="carousel-item">
+                    <img src="{% static 'images/2.jpeg' %}" class="d-block w-100" style="height: 50vh; min-height: 300px; object-fit: cover;" alt="...">
+                </div>
+                <div class="carousel-item">
+                    <img src="{% static 'images/3.jpeg' %}" class="d-block w-100" style="height: 50vh; min-height: 300px; object-fit: cover;" alt="...">
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Next</span>
+            </button>
+        </div>
+    </div>
+    <!-- Contenido principal -->
+<main class="container my-5">
+    <main class="container my-5">
+    <!-- Debug: -->
+    <div class="d-none"> <!-- Oculta esto en producción -->
+        <p>Número de cervezas: {{ cervezas|length }}</p>
+        {% for c in cervezas %}
+            <p>{{ c.nombre }} - Destacado: {{ c.destacado }} - Imagen: {% if c.imagen %}Sí{% else %}No{% endif %}</p>
+        {% endfor %}
+    </div>
+    <!-- Fin debug -->
+    <!-- Tarjetas de productos -->
+    <div class="container mt-5">
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for cerveza in cervezas %}
+            <!-- Card dinámica -->
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm">
+                    {% if cerveza.imagen %}
+                    <img src="{{ cerveza.imagen.url }}" class="card-img-top" alt="{{ cerveza.nombre }}" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ cerveza.nombre }}</h5>
+                        <div class="mb-2">
+                            <span class="badge 
+                                {% if 'ipa' in cerveza.estilo|lower %}bg-warning text-dark
+                                {% elif 'pilsen' in cerveza.estilo|lower %}bg-light text-dark
+                                {% elif 'amber' in cerveza.estilo|lower %}bg-danger
+                                {% else %}bg-secondary{% endif %}">
+                                {{ cerveza.get_estilo_display }}
+                            </span>
+                            {% if cerveza.destacado %}
+                            <span class="badge bg-warning text-dark ms-1"><i class="bi bi-star-fill"></i> Destacada</span>
+                            {% endif %}
+                        </div>
+                        <p class="card-text">{{ cerveza.descripcion|default:"Cerveza artesanal premium" }}</p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <h5 class="mb-0">${{ cerveza.precio }}</h5>
+                                <span class="badge bg-{% if cerveza.stock < 10 %}danger{% elif cerveza.stock < 20 %}warning text-dark{% else %}success{% endif %}">
+                                    Stock: {{ cerveza.stock }}
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-3 controls-container">
+                                <div class="input-group quantity-selector" style="width: 120px;">
+                                    <button class="btn btn-outline-yokai minus-btn" type="button" data-product-id="{{ cerveza.id }}">-</button>
+                                    <input type="number" class="form-control quantity-input text-center" 
+                                        value="1" min="1" max="{{ cerveza.stock }}" 
+                                        data-product-id="{{ cerveza.id }}">
+                                    <button class="btn btn-outline-yokai plus-btn" type="button" data-product-id="{{ cerveza.id }}">+</button>
+                                </div>
+                                <div class="rating-container mt-2">
+    
+                                <button class="btn btn-yokai add-to-cart" data-product-id="{{ cerveza.id }}">
+                                    <span class="btn-text">
+                                        <i class="bi bi-cart-plus"></i> Añadir
+                                    </span>
+                                </button>
+                                
+                            </div>
+                            
+                        </div>
+                    
+</div>
+
+<!-- Botón para ver/agregar reseñas -->
+<button class="btn btn-sm btn-outline-secondary mt-2 w-100 btn-ver-resenas" 
+        data-bs-toggle="modal" 
+        data-bs-target="#reviewModal"
+        data-cerveza-id="{{ cerveza.id }}">
+    <i class="bi bi-chat-left-text"></i> Ver reseñas
+</button>
+                    </div>
+                </div>
+            </div>
+{% empty %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6 text-center py-5">
+            <div class="alert alert-light shadow-sm">
+                <i class="bi bi-box-seam text-muted" style="font-size: 2.5rem;"></i>
+                <h4 class="mt-3">No hay productos disponibles</h4>
+                <p class="mb-0">Estamos preparando nuevas cervezas artesanales</p>
+            </div>
+        </div>
+    </div>
+</div>
+            {% endfor %}
+        </div>
+    </div>
+<div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reviewModalLabel">Reseñas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="resenasContainer">
+                    <!-- Las reseñas se cargarán aquí via AJAX -->
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-yokai" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 pt-3 border-top">
+                    <h6>Agregar tu reseña</h6>
+                    <form id="resenaForm" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="cerveza_id" id="cervezaIdInput">
+                    
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Tu nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Calificación</label>
+                        <div class="star-rating">
+                            <input type="radio" id="5-stars" name="puntuacion" value="5" required />
+                            <label for="5-stars" class="bi bi-star-fill"></label>
+                            <input type="radio" id="4-stars" name="puntuacion" value="4" />
+                            <label for="4-stars" class="bi bi-star-fill"></label>
+                            <input type="radio" id="3-stars" name="puntuacion" value="3" />
+                            <label for="3-stars" class="bi bi-star-fill"></label>
+                            <input type="radio" id="2-stars" name="puntuacion" value="2" />
+                            <label for="2-stars" class="bi bi-star-fill"></label>
+                            <input type="radio" id="1-star" name="puntuacion" value="1" />
+                            <label for="1-star" class="bi bi-star-fill"></label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="comentario" class="form-label">Comentario (opcional)</label>
+                        <textarea class="form-control" id="comentario" name="comentario" rows="3"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-yokai">
+                        <i class="bi bi-send"></i> Enviar reseña
+                    </button>
+                </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</main>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const reviewModal = document.getElementById('reviewModal');
+    const resenasContainer = document.getElementById('resenasContainer');
+    const resenaForm = document.getElementById('resenaForm');
+    const cervezaIdInput = document.getElementById('cervezaIdInput');
+
+    // Verificar que todos los elementos existen
+    if (!reviewModal || !resenasContainer || !resenaForm || !cervezaIdInput) {
+        console.error('Error: No se encontraron todos los elementos necesarios');
+        return;
+    }
+
+    // Función para cargar reseñas
+    function cargarResenas(cervezaId) {
+        // Mostrar loader
+        resenasContainer.innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-yokai" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
+        `;
+        
+        fetch(`/cervezas/${cervezaId}/resenas/`, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            let html = '';
+            
+            if (data.resenas && data.resenas.length > 0) {
+                data.resenas.forEach(resena => {
+                    const fecha = new Date(resena.fecha);
+                    const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    
+                    html += `
+                    <div class="review-card">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="review-user">${resena.nombre}</span>
+                            <div>
+                                ${'<i class="bi bi-star-fill text-warning"></i>'.repeat(resena.puntuacion)}
+                                ${'<i class="bi bi-star text-warning"></i>'.repeat(5 - resena.puntuacion)}
+                                <small class="text-muted ms-2">${fechaFormateada}</small>
+                            </div>
+                        </div>
+                        ${resena.comentario ? `<p class="mb-0">${resena.comentario}</p>` : ''}
+                    </div>
+                    `;
+                });
+                
+                html += `
+                <div class="text-center mt-3">
+                    <p class="text-muted">
+                        <i class="bi bi-star-fill text-warning"></i> 
+                        Promedio: ${data.promedio ? data.promedio.toFixed(1) : '0.0'} (${data.total_resenas || 0} reseñas)
+                    </p>
+                </div>
+                `;
+            } else {
+                html = `
+                <div class="text-center py-4">
+                    <i class="bi bi-chat-square-text" style="font-size: 2rem;"></i>
+                    <h5 class="mt-3">No hay reseñas aún</h5>
+                    <p class="text-muted">Sé el primero en opinar sobre esta cerveza</p>
+                </div>
+                `;
+            }
+            
+            resenasContainer.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error al cargar reseñas:', error);
+            resenasContainer.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Error al cargar las reseñas: ${error.message}
+                </div>
+            `;
+        });
+    }
+
+    // Manejar el envío del formulario
+    resenaForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const cervezaId = cervezaIdInput.value;
+        
+        // Validar campos obligatorios
+        if (!formData.get('nombre') || !formData.get('puntuacion')) {
+            alert('Por favor completa tu nombre y selecciona una puntuación');
+            return;
+        }
+
+        // Mostrar loader
+        const submitBtn = resenaForm.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Enviando...';
+        submitBtn.disabled = true;
+
+        // Agregar CSRF token
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        formData.append('csrfmiddlewaretoken', csrfToken);
+
+        fetch(`/cervezas/${cervezaId}/resenas/agregar/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Recargar las reseñas
+                cargarResenas(cervezaId);
+                
+                // Resetear el formulario
+                resenaForm.reset();
+                
+                // Mostrar mensaje de éxito
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show mt-3';
+                alertDiv.innerHTML = `
+                    <i class="bi bi-check-circle-fill"></i> ¡Tu reseña ha sido publicada!
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                resenasContainer.prepend(alertDiv);
+            } else {
+                throw new Error(data.error || 'Error desconocido al enviar la reseña');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(`Error al enviar la reseña: ${error.message}`);
+        })
+        .finally(() => {
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+        });
+    });
+
+    // Cargar reseñas al abrir el modal
+    reviewModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const cervezaId = button.getAttribute('data-cerveza-id');
+        cervezaIdInput.value = cervezaId;
+        cargarResenas(cervezaId);
+    });
+});
+</script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+<footer class="footer-yokai bg-dark text-white py-4">
+    <div class="container-fluid">  <!-- Cambiado a container-fluid -->
+        <div class="row">
+            <!-- Columna izquierda - Logo y descripción -->
+            <div class="col">
+                <div class="d-flex align-items-center mb-3">
+                    <img src="{% static 'images/Logo.png' %}" alt="Logo Yokai" style="height: 50px;" class="me-2">
+                    <h4 class="mb-0 text-yokai-gold">Cerveza Yokai</h4>
+                </div>
+                <p class="mb-0">Inspirados en la rica mitología japonesa para crear cervezas artesanales únicas.</p>
+            </div>
+            
+            <!-- Columna central - Contacto -->
+            <div class="col">
+                <h5 class="text-yokai-gold mb-3">Contacto</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="bi bi-geo-alt-fill text-yokai-gold me-2"></i> San Fernando, VI Region</li>
+                    <li class="mb-2"><i class="bi bi-telephone-fill text-yokai-gold me-2"></i> +56 9 9938 3345</li>
+                    <li class="mb-2"><i class="bi bi-envelope-fill text-yokai-gold me-2"></i> yokai.cerveza@gmail.com</li>
+                </ul>
+            </div>
+            
+            <!-- Columna derecha - Redes sociales -->
+        </div>
+        <hr class="my-4" style="border-color: rgba(212, 175, 55, 0.3);">
+        <div class="row">
+            <div class="col-12 text-center">
+                <p class="mb-0 small">&copy; 2025 Cervecería Yokai. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+</html>
+
+        

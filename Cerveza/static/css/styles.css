@@ -1,0 +1,939 @@
+/* Variables de color y tipografía */
+:root {
+    --red-yokai: #8B0000;
+    --gold-yokai: #FFD700;
+    --gold-dark: #e6c300;
+    --light-bg: #FFF8F0;
+    --dark-text: #3A2E39;
+    --mobile-menu-bg: #6B0000;
+    --font-japanese-sans: 'Noto Sans JP', sans-serif;
+    --font-japanese-title: 'RocknRoll One', sans-serif;
+}
+
+/* Estilos generales */
+body {
+    font-family: var(--font-japanese-sans);
+    background-color: var(--light-bg);
+    color: var(--dark-text);
+}
+
+/* Animaciones */
+@keyframes flyToCart {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    70% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--endX), var(--endY)) scale(0.1);
+        opacity: 0;
+    }
+}
+
+.flying-img {
+    animation: flyToCart 0.6s forwards;
+    z-index: 1000;
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+.btn-animate {
+    animation: pulse 0.5s ease;
+    background-color: #28a745 !important;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+
+
+/* Elimina las flechas del input number */
+.quantity-selector input[type="number"]::-webkit-inner-spin-button,
+.quantity-selector input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.quantity-selector input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+}
+
+/* Estilo para el selector de cantidad */
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+}
+
+.quantity-selector .btn-outline-yokai {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.quantity-selector .quantity-input {
+    width: 40px;
+    text-align: center;
+    margin: 0 5px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+}
+
+/* OPCIÓN 2: Fondo con overlay oscuro para mejor legibilidad */
+.fondo-pagina {
+    background: 
+        linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+        url('../images/fondo-personalizado.jpeg') center/cover fixed no-repeat;
+    min-height: 100vh;
+}
+
+/* ===== NAVBAR ===== */
+.navbar-yokai {
+    background-color: var(--red-yokai) !important;
+    padding: 0.5rem 1rem;
+    font-family: var(--font-japanese-title);
+    font-weight: 500;
+}
+
+/* Logo */
+.logo-desktop {
+    height: 120px;
+    margin-right: 1rem;
+    transition: all 0.3s ease;
+    filter: brightness(1) saturate(1); /* Estado normal */
+}
+
+.logo-desktop:hover {
+    transform: scale(1.1);
+    filter: 
+        brightness(1.1) 
+        saturate(1.5) 
+        drop-shadow(0 0 5px rgba(255, 215, 0, 0.7)); /* Efecto dorado al pasar el mouse */
+}
+
+.brand-name {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* ===== ELEMENTOS DEL NAVBAR ===== */
+
+/* Menú desktop */
+.desktop-menu .nav-link {
+    font-size: 1.2rem;
+    padding: 0.8rem 1.2rem !important;
+    margin: 0 0.5rem;
+    color: white !important;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.desktop-menu .nav-link:hover {
+    background-color: rgba(255, 215, 0, 0.2) !important;
+    transform: translateY(-2px);
+}
+
+/* Barra de búsqueda desktop */
+.desktop-search .form-control {
+    height: 45px;
+    font-size: 1.1rem;
+    min-width: 250px;
+    border-color: var(--gold-yokai);
+}
+
+.desktop-search .btn-yokai {
+    height: 45px;
+    width: 50px;
+    background-color: var(--gold-yokai);
+    color: var(--red-yokai);
+    border: none;
+    font-size: 1.2rem;
+}
+
+/* Ícono del carrito desktop */
+.cart-icon .bi {
+    color: var(--gold-yokai);
+    font-size: 1.8rem;
+    margin-left: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.cart-icon .bi:hover {
+    transform: scale(1.1);
+    color: white;
+}
+
+/* ===== MENÚ MÓVIL ===== */
+.mobile-controls {
+    background-color: var(--mobile-menu-bg);
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-content {
+    padding: 1.5rem;
+}
+
+/* Barra de búsqueda móvil */
+.mobile-search .input-group {
+    border: 2px solid var(--gold-yokai);
+    border-radius: 30px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+}
+
+.mobile-search .form-control {
+    height: 50px;
+    font-size: 1.1rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: none;
+    padding-left: 20px;
+}
+
+.mobile-search .btn-yokai {
+    background-color: var(--gold-yokai);
+    color: var(--red-yokai);
+    border: none;
+    width: 60px;
+    font-size: 1.3rem;
+    transition: all 0.3s ease;
+}
+
+.mobile-search .btn-yokai:hover {
+    background-color: var(--gold-dark);
+}
+
+/* Carrito móvil */
+.cart-icon-mobile {
+    background-color: var(--gold-yokai);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 3px 6px rgba(139, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.cart-icon-mobile .bi {
+    color: var(--red-yokai) !important;
+    font-size: 1.8rem;
+}
+
+.cart-icon-mobile:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 12px rgba(139, 0, 0, 0.3);
+}
+
+/* Items del menú móvil */
+.mobile-controls .nav-link {
+    color: white !important;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 1.2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.mobile-controls .nav-link:hover {
+    background-color: rgba(255, 215, 0, 0.15);
+}
+
+
+/* Animación del botón añadir */
+.btn-animate {
+    animation: pulse 0.5s ease;
+    background-color: #28a745 !important; /* Verde de confirmación */
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Efecto de onda al hacer clic */
+.btn-animate::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    background: rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    border-radius: 100%;
+    transform: scale(1, 1) translate(-50%, -50%);
+    transform-origin: 50% 50%;
+}
+
+.btn-animate:focus:not(:active)::after {
+    animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(20, 20);
+        opacity: 0;
+    }
+}
+
+/* Animación de sacudida para el carrito */
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+.cart-animation-gif {
+    height: 24px;
+    width: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.btn-yokai {
+    position: relative;
+    min-width: 120px;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Contador del carrito */
+.cart-counter {
+    font-size: 0.7rem;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Animación de sacudida */
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+/* Estilos para la página de carrito */
+.bg-yokai-red {
+    background-color: var(--red-yokai);
+}
+
+.cart-item img {
+    max-height: 80px;
+    object-fit: cover;
+}
+
+.cart-item .quantity-selector {
+    margin-top: 10px;
+}
+
+#checkout-btn {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 10px;
+}
+
+.sticky-top {
+    z-index: 10;
+}
+
+/* Estilo para el selector de cantidad */
+.quantity-selector {
+    display: flex;
+    align-items: center;
+}
+
+.quantity-selector .btn-outline-yokai {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.quantity-selector .quantity-input {
+    width: 40px;
+    text-align: center;
+    margin: 0 5px;
+    -moz-appearance: textfield;
+}
+
+/* Animaciones */
+@keyframes flyToCart {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    70% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--endX), var(--endY)) scale(0.3);
+        opacity: 0;
+    }
+}
+
+.flying-img {
+    animation: flyToCart 0.8s forwards;
+    z-index: 1000;
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+.btn-animate {
+    animation: pulse 0.5s ease;
+    background-color: #28a745 !important;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.cart-counter {
+    transition: all 0.3s ease;
+}
+
+.quantity-selector .quantity-input::-webkit-inner-spin-button,
+.quantity-selector .quantity-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+/* Estilo para la alerta de no productos */
+.empty-alert {
+    max-width: 600px;
+    margin: 0 auto;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.empty-alert i {
+    color: #8B4513; /* Color café cerveza */
+}
+
+@media (max-width: 768px) {
+    .empty-alert {
+        margin: 1rem;
+    }
+}
+
+/* Estilo para las tarjetas de producto */
+.card {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Estilo para los badges */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+
+
+
+
+
+/* Responsive */
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 992px) {
+    /* Ocultar elementos desktop */
+    .desktop-menu,
+    .desktop-search {
+        display: none !important;
+    }
+    
+    /* Logo más grande en móvil */
+    .logo-desktop {
+        height: 90px;
+        margin-right: 1rem;
+        transition: all 0.3s ease;
+        filter: brightness(1) saturate(1); /* Estado normal */
+    }
+    
+    .logo-desktop:hover {
+        transform: scale(1.1);
+        filter: 
+            brightness(1.1) 
+            saturate(1.5) 
+            drop-shadow(0 0 5px rgba(255, 215, 0, 0.7)); /* Efecto dorado al pasar el mouse */
+    }
+
+    .sticky-top {
+        position: static !important;
+    }
+}
+
+
+
+/* Animaciones */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-5px); }
+    40%, 80% { transform: translateX(5px); }
+}
+
+.shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+.btn-animate {
+    animation: pulse 0.5s ease;
+    background-color: #28a745 !important;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.cart-item {
+    transition: all 0.3s ease;
+}
+
+.cart-item img {
+    max-height: 80px;
+    object-fit: cover;
+}
+
+/* Elimina márgenes y paddings no deseados */
+#cart-items-container .cart-item:first-child {
+    margin-top: 0;
+    padding-top: 0.5rem;  /* Ajusta este valor según necesites */
+}
+
+.card-header.bg-yokai-red {
+    padding-bottom: 0.5rem !important;  /* Reduce espacio inferior del header */
+}
+
+.cart-item {
+    padding: 0.75rem 1rem;  /* Ajusta el padding interno de los items */
+    margin: 0;
+    border-bottom: 1px solid #dee2e6;
+}
+@media (min-width: 993px) {
+    /* Ocultar elementos móviles */
+    .mobile-controls {
+        display: none !important;
+    }
+}
+
+/* ESTILOS ESPECÍFICOS PARA EL CARRITO */
+.card-body.p-0 {
+    padding: 0 !important;
+}
+
+.cart-items-wrapper {
+    margin: 0;
+    padding: 0;
+}
+
+.cart-items-list {
+    margin: 0;
+    padding: 0;
+}
+
+.cart-item {
+    padding: 1rem;
+    margin: 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Elimina espacio superior del primer item */
+.cart-item:first-child {
+    padding-top: 0.25rem !important;
+    margin-top: 0 !important;
+}
+
+/* Asegura que el header no tenga espacio inferior */
+.card-header.bg-yokai-red {
+    padding-bottom: 0.5rem !important;
+    margin-bottom: 0 !important;
+}
+
+/* Ajusta los márgenes internos de los elementos */
+.cart-item .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.cart-item [class^="col-"] {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+/* Ajustes específicos para el carrito */
+.cart-item [class*="col-"]:last-child {
+    padding-left: 1.5rem; /* Espacio adicional a la izquierda */
+    padding-right: 0.5rem; /* Reducir espacio a la derecha */
+}
+
+.remove-item {
+    margin-left: -0.5rem; /* Ajuste fino para el botón eliminar */
+}
+
+/* Asegurar que el precio se muestre correctamente */
+.cart-item .fw-bold {
+    white-space: nowrap; /* Evitar que el precio se divida en dos líneas */
+    padding-left: 0.5rem; /* Alineación con el botón */
+}
+
+/* Estilos para el contador del carrito */
+.cart-counter {
+    font-size: 0.7rem;
+    padding: 0.35em 0.65em;
+    display: none; /* Inicialmente oculto */
+}
+
+/* Estilo para la sección de seguimiento */
+.tracking-section {
+    border-left: 4px solid #d4af37;
+    transition: all 0.3s ease;
+}
+
+.tracking-section:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+}
+
+/* Estilo para el código de seguimiento */
+.badge.bg-yokai-red {
+    background-color: #d4af37;
+    color: #000;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 1px;
+    font-size: 1.1rem;
+}
+
+    /* Estilo para los botones de cantidad */
+.quantity-selector .btn-outline-yokai {
+    border-color: #d4af37;
+    color: #d4af37;
+}
+
+.quantity-selector .btn-outline-yokai:hover {
+    background-color: #d4af37;
+    color: white;
+}
+
+/* Centrar el texto en el input */
+.quantity-input.text-center {
+    text-align: center;
+}
+
+/* Quitar flechas en navegadores modernos */
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.quantity-input {
+    -moz-appearance: textfield;
+}
+
+/* Timeline de seguimiento */
+.timeline-steps {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.timeline-step {
+    flex: 1;
+    position: relative;
+    padding: 0 10px;
+    text-align: center;
+}
+
+.timeline-step:not(:last-child):before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 60%;
+    width: 80%;
+    height: 2px;
+    background-color: #e9ecef;
+    z-index: 1;
+}
+
+.timeline-step.completed:not(:last-child):before {
+    background-color: #d4a017; /* Color dorado Yokai */
+}
+
+.timeline-icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    position: relative;
+    z-index: 2;
+}
+
+.timeline-step.completed .timeline-icon {
+    background: #d4a017;
+    color: white;
+}
+
+.timeline-content {
+    font-size: 0.9rem;
+}
+
+.timeline-content h6 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.timeline-content small {
+    color: #6c757d;
+    display: block;
+}
+
+/* Responsive */
+
+
+/* Estilos para la gestión de pedidos */
+.timeline-steps {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.timeline-step {
+    flex: 1;
+    position: relative;
+    padding: 0 10px;
+    text-align: center;
+    min-width: 100px;
+}
+
+.timeline-step:not(:last-child):before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 60%;
+    width: 80%;
+    height: 2px;
+    background-color: #e9ecef;
+    z-index: 1;
+}
+
+.timeline-step.completed:not(:last-child):before {
+    background-color: #d4a017;
+}
+
+.timeline-icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    position: relative;
+    z-index: 2;
+}
+
+.timeline-step.completed .timeline-icon {
+    background: #d4a017;
+    color: white;
+}
+
+.timeline-content {
+    font-size: 0.9rem;
+}
+
+.timeline-content h6 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+}
+
+.timeline-content small {
+    color: #6c757d;
+    display: block;
+}
+
+
+/* Estructura para mantener el footer abajo */
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1 0 auto;
+    padding-bottom: 2rem;
+}
+
+/* Estilos específicos para el footer */
+.footer-yokai {
+    background-color: #1a1a1a;
+    border-top: 3px solid #d4af37;
+    margin-top: auto;
+    width: 100%;
+}
+
+.text-yokai-gold {
+    color: #d4af37;
+}
+
+.footer-yokai .container-fluid {
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.footer-yokai h4, 
+.footer-yokai h5 {
+    font-family: 'RocknRoll One', sans-serif;
+}
+
+.footer-yokai ul {
+    padding-left: 0;
+}
+
+.footer-yokai .social-icons a {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.footer-yokai .social-icons a:hover {
+    background-color: #d4af37 !important;
+    color: #000 !important;
+    transform: translateY(-3px);
+}
+
+.footer-yokai hr {
+    border-color: rgba(212, 175, 55, 0.3);
+}
+
+/* Asegurar que el footer siempre esté abajo */
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 0;
+}
+
+.footer-yokai {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+}
+
+/* Añade esto a tu CSS */
+.yokai-image {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+    height: auto;
+}
+
+
+@media (max-width: 768px) {
+    .timeline-step {
+        flex: 0 0 100%;
+        margin-bottom: 20px;
+        text-align: left;
+        display: flex;
+        align-items: center;
+    }
+    
+    .timeline-step:before {
+        display: none;
+    }
+    
+    .timeline-icon {
+        margin: 0 15px 0 0;
+    }
+    
+    .timeline-content {
+        text-align: left;
+    }
+
+    .yokai-section .row {
+        align-items: center;
+    }
+    .yokai-image-container {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    
+}

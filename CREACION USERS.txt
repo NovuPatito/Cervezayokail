@@ -1,0 +1,18 @@
+# Desde el shell (python manage.py shell)
+from Cerveza.models import Usuario
+
+# Crear admin
+admin = Usuario.objects.create_user(
+    username='adminroro',
+    email='adminroro@cervezayokai.cl',
+    password='Admin32',
+    tipo_usuario='admin'
+)
+
+# Crear staff
+staff = Usuario.objects.create_user(
+    username='staffelix',
+    email='staffelix@cervezayokai.com',
+    password='Staff32',
+    tipo_usuario='staff'
+)
